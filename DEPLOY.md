@@ -42,12 +42,14 @@ HTTPS is automatic. Open `/demo` or `/home` to verify.
 
 Leave `FINN_API_ORIGIN` unset. You still get:
 
-- Live quotes  
+- Live quotes (+ real spark history)  
 - Full NSE search (2,635+)  
+- **Live OHLC charts** (1D–ALL) with RSI / MACD / MA trend  
+- Paper Buy / Sell on Research  
 - Portfolio / Protect UI  
 - Embedded Ask / digest placeholders  
 
-Primary research + real NSE filings need the Python API.
+Primary Screener filings + grounded Ask still need the Python API (`FINN_API_ORIGIN`).
 
 ---
 

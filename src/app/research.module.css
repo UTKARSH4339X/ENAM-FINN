@@ -462,3 +462,180 @@
   background: rgba(192, 57, 43, 0.1);
   color: #c0392b;
 }
+
+.rangeRow {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 2px 0 10px;
+  margin-bottom: 4px;
+}
+
+.rangeChip {
+  flex: 0 0 auto;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 800;
+  background: var(--sheet);
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+}
+
+.rangeOn {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+
+.trendBanner {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1.5px solid var(--line);
+}
+
+.trendBull {
+  border-color: rgba(15, 122, 87, 0.35);
+  background: linear-gradient(180deg, rgba(15, 122, 87, 0.08), #fff);
+}
+
+.trendBear {
+  border-color: rgba(192, 57, 43, 0.35);
+  background: linear-gradient(180deg, rgba(192, 57, 43, 0.08), #fff);
+}
+
+.trendNeutral {
+  border-color: var(--line-strong);
+}
+
+.trendLabel {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.trendMeta {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-3);
+}
+
+.trendReason {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.indTable {
+  display: grid;
+  gap: 0;
+  margin-top: 8px;
+}
+
+.indRow {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr 0.7fr;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  align-items: center;
+  font-size: 13px;
+}
+
+.indRow:last-child {
+  border-bottom: 0;
+}
+
+.paperBox {
+  display: grid;
+  gap: 12px;
+}
+
+.paperBadge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(232, 50, 26, 0.1);
+  color: var(--stamp);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.sideRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.sideBtn {
+  min-height: 48px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 15px;
+  border: 1.5px solid var(--line-strong);
+  background: #fff;
+  color: var(--ink);
+}
+
+.sideBuyOn {
+  background: #0f7a57;
+  border-color: #0f7a57;
+  color: #fff;
+}
+
+.sideSellOn {
+  background: #c0392b;
+  border-color: #c0392b;
+  color: #fff;
+}
+
+.qtyRow {
+  display: grid;
+  gap: 6px;
+}
+
+.qtyRow label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-3);
+}
+
+.qtyRow input {
+  min-height: 48px;
+  border-radius: 12px;
+  border: 1.5px solid var(--line-strong);
+  padding: 0 14px;
+  font-size: 16px;
+  font-weight: 700;
+  background: #fff;
+  width: 100%;
+}
+
+.estValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.chartError {
+  display: grid;
+  gap: 10px;
+  padding: 18px 8px;
+  text-align: center;
+}
+
+.chartError p {
+  font-size: 14px;
+  color: var(--ink-2);
+  font-weight: 600;
+}

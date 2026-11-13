@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { analyzeTickerEmbedded, type ChartRange } from "@/server/analysis";
 import { fetchQuotesEmbedded } from "@/server/quotes";
 import { searchUniverseEmbedded } from "@/server/universeSearch";
+
+const CHART_RANGES = new Set(["1D", "1W", "1M", "3M", "6M", "1Y", "ALL"]);
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -102,6 +105,14 @@ async function fallback(req: NextRequest, parts: string[]): Promise<NextResponse
         sp.get("exchange"),
       ),
     );
+  }
+
+  // Live OHLC + technical trend — works on Vercel without FastAPI
+  if (parts[0] === "market" && parts[1] === "analysis" && parts[2]) {
+    const ticker = parts[2].toUpperCase();
+    const rawRange = (sp.get("range") || "3M").toUpperCase();
+    const range = (CHART_RANGES.has(rawRange) ? rawRange : "3M") as ChartRange;
+    return NextResponse.json(await analyzeTickerEmbedded(ticker, range));
   }
 
   if (path === "ask" && req.method === "POST") {

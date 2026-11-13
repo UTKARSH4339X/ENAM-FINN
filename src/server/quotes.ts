@@ -45,6 +45,26 @@ function headers() {
   };
 }
 
+async function sparkCloses(sym: string): Promise<number[]> {
+  try {
+    const now = Math.floor(Date.now() / 1000);
+    const from = now - 45 * 86400;
+    const isIndex = Boolean(INDEX_FEED[sym]);
+    const path = isIndex ? "index" : "stock";
+    const symbol = isIndex ? INDEX_FEED[sym] : encodeURIComponent(sym);
+    const url =
+      `https://priceapi.moneycontrol.com/techCharts/indianMarket/${path}/history` +
+      `?symbol=${symbol}&resolution=D&from=${from}&to=${now}&countback=40&currencyCode=INR`;
+    const r = await fetch(url, { headers: headers(), cache: "no-store", signal: AbortSignal.timeout(8000) });
+    if (!r.ok) return [];
+    const body = (await r.json()) as { s?: string; c?: number[] };
+    if (body.s !== "ok" || !body.c?.length) return [];
+    return body.c.slice(-24).map((n) => Number(n)).filter((n) => Number.isFinite(n) && n > 0);
+  } catch {
+    return [];
+  }
+}
+
 async function quoteOne(ticker: string): Promise<{
   ticker: string;
   price: number;
@@ -64,7 +84,8 @@ async function quoteOne(ticker: string): Promise<{
       const price = Number(d.lastprice || d.last || 0);
       const change_pct = Number(d.perchange || d.percentchange || 0);
       if (!price) return null;
-      return { ticker: sym, price, change_pct, source: "moneycontrol", spark: [] };
+      const spark = await sparkCloses(sym);
+      return { ticker: sym, price, change_pct, source: "moneycontrol", spark };
     }
     const scid = SCID[sym] || sym;
     for (const path of ["nse", "bse"] as const) {
@@ -77,12 +98,13 @@ async function quoteOne(ticker: string): Promise<{
       const price = Number(d.pricecurrent || d.lastprice || 0);
       const change_pct = Number(d.pricepercentchange || d.perchange || 0);
       if (!price) continue;
+      const spark = await sparkCloses(sym);
       return {
         ticker: sym,
         price,
         change_pct,
         source: path === "nse" ? "moneycontrol" : "moneycontrol_bse",
-        spark: [],
+        spark,
       };
     }
   } catch {

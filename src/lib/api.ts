@@ -125,6 +125,8 @@ export type TradePlan = {
   risk_rupees: number;
 };
 
+export type ChartRange = "1D" | "1W" | "1M" | "3M" | "6M" | "1Y" | "ALL";
+
 export type AnalysisPayload = {
   ticker: string;
   name: string;
@@ -138,6 +140,9 @@ export type AnalysisPayload = {
   action: "BUY" | "HOLD" | "REDUCE" | "SELL" | "WAIT" | string;
   tone: "buy" | "sell" | "wait";
   stance?: "Long" | "Keep" | "Sell" | string;
+  trend?: "BULLISH" | "BEARISH" | "NEUTRAL" | "DATA UNAVAILABLE" | string;
+  trend_strength?: number;
+  trend_reason?: string;
   trade?: TradePlan;
   score: number;
   score_max: number;
@@ -146,6 +151,7 @@ export type AnalysisPayload = {
   overlays: {
     sma20: (number | null)[];
     sma50: (number | null)[];
+    sma200?: (number | null)[];
     bb_upper: (number | null)[];
     bb_mid: (number | null)[];
     bb_lower: (number | null)[];
@@ -155,6 +161,8 @@ export type AnalysisPayload = {
     macd_hist: (number | null)[];
   };
   candles: Candle[];
+  range?: ChartRange | string;
+  as_of?: string;
   disclaimer: string;
 };
 
@@ -185,8 +193,9 @@ export function searchStocks(
   }>(`/market/search?${qs}`);
 }
 
-export function fetchAnalysis(ticker: string) {
-  return api<AnalysisPayload>(`/market/analysis/${encodeURIComponent(ticker)}`);
+export function fetchAnalysis(ticker: string, range: ChartRange = "3M") {
+  const qs = new URLSearchParams({ range });
+  return api<AnalysisPayload>(`/market/analysis/${encodeURIComponent(ticker)}?${qs}`);
 }
 
 export type DigestItem = {
