@@ -1,0 +1,252 @@
+.wrap {
+  padding: 12px 0 28px;
+}
+
+.brand {
+  margin: 10px 20px 0;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--stamp);
+}
+
+.title {
+  margin: 8px 20px 0;
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.sub {
+  margin: 6px 20px 0;
+  font-size: 15px;
+  color: var(--ink-2);
+}
+
+.pulse {
+  margin: 16px 16px 0;
+  padding: 16px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(16, 24, 32, 0.05);
+}
+
+.statusOk {
+  border-left: 4px solid var(--up);
+}
+
+.statusWatch {
+  border-left: 4px solid var(--cobalt);
+}
+
+.statusCritical {
+  border-left: 4px solid var(--stamp);
+}
+
+.pulseTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.pulseLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-3);
+  letter-spacing: 0.02em;
+}
+
+.pulseBig {
+  margin-top: 4px;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.pulseBadge {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(16, 24, 32, 0.06);
+  color: var(--ink);
+}
+
+.pulseLine {
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.metrics {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 12px;
+}
+
+.metrics span {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-3);
+}
+
+.metrics strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.movers {
+  margin: 16px 16px 0;
+}
+
+.movers h2,
+.checklist h2,
+.sectionHead h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.moverRow {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.moverChip {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(16, 24, 32, 0.04);
+  text-decoration: none;
+  color: inherit;
+}
+
+.moverChip strong {
+  font-size: 13px;
+}
+
+.moverChip span {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.checklist {
+  margin: 16px 16px 0;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(244, 247, 251, 0.9);
+}
+
+.checklist ol {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+}
+
+.checklist li {
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.sectionHead {
+  margin: 18px 20px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.feed {
+  margin-top: 10px;
+  display: grid;
+  gap: 10px;
+  padding: 0 16px;
+}
+
+.card {
+  padding: 16px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(16, 24, 32, 0.05);
+}
+
+.card.risk {
+  border-left: 4px solid var(--stamp);
+}
+
+.card.alert {
+  border-left: 4px solid var(--cobalt);
+}
+
+.card.opportunity {
+  border-left: 4px solid var(--up);
+}
+
+.card.thesis {
+  border-left: 4px solid var(--ink);
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.kind {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink-3);
+}
+
+.when {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.card h2 {
+  font-size: 17px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.card p {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+
+.cardActions {
+  margin-top: 10px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.link {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--cobalt);
+}
+
+.rowLinks {
+  margin: 16px 16px 0;
+  display: grid;
+  gap: 8px;
+}

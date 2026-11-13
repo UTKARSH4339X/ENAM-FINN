@@ -1,0 +1,152 @@
+.wrap {
+  padding: 12px 18px 28px;
+}
+
+.brand {
+  margin-top: 8px;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--stamp);
+}
+
+.title {
+  margin-top: 12px;
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.sub {
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink-2);
+  max-width: 34ch;
+}
+
+.status {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.status button {
+  border: 1px solid var(--line-strong);
+  padding: 8px 12px;
+  background: #fff;
+  font-weight: 700;
+}
+
+.up {
+  color: var(--up);
+}
+
+.down {
+  color: var(--down);
+}
+
+.error {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--stamp);
+  background: var(--stamp-soft);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.stats {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.stats > div {
+  padding: 12px;
+  border-right: 1px solid var(--line);
+}
+
+.stats > div:last-child {
+  border-right: 0;
+}
+
+.stats span {
+  display: block;
+  font-size: 11px;
+  color: var(--ink-3);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.stats strong {
+  font-family: var(--font-display);
+  font-size: 22px;
+}
+
+.list {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.empty {
+  font-size: 14px;
+  color: var(--ink-3);
+  line-height: 1.4;
+}
+
+.card {
+  padding: 14px;
+  border: 1px solid var(--line-strong);
+  background: rgba(244, 247, 251, 0.85);
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.card p {
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.meta {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.closeBtn {
+  margin-top: 12px;
+  width: 100%;
+  min-height: 42px;
+  border: 1.5px solid var(--ink);
+  font-weight: 700;
+  background: #fff;
+}
+
+.link {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border: 1.5px solid var(--ink);
+  font-weight: 700;
+}

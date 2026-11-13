@@ -1,0 +1,278 @@
+.wrap {
+  padding: 22px 18px 28px;
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--stamp);
+}
+
+.title {
+  margin-top: 18px;
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+
+.sub {
+  margin-top: 10px;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  max-width: 36ch;
+}
+
+.bookChip {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 12px 14px;
+  border: 1px solid var(--line-strong);
+  background: rgba(244, 247, 251, 0.85);
+}
+
+.bookChip span {
+  font-size: 13px;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+
+.bookChip strong {
+  font-family: var(--font-display);
+  font-size: 20px;
+}
+
+.tickerRow {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.tickerBtn {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.55);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.tickerBtn.on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--sheet);
+}
+
+.priceCard {
+  margin-top: 14px;
+  padding: 16px;
+  border: 1.5px solid var(--ink);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.priceTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.name {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.ex {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.priceBlock {
+  text-align: right;
+}
+
+.last {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.levels {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.levels span {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-3);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.levels strong {
+  font-family: var(--font-display);
+  font-size: 16px;
+}
+
+.syncBtn {
+  margin-top: 12px;
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.7);
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.syncBtn:disabled {
+  opacity: 0.5;
+}
+
+.breach {
+  margin-top: 14px;
+  padding: 12px;
+  background: var(--down-soft);
+  border-left: 3px solid var(--down);
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.safe {
+  margin-top: 14px;
+  padding: 12px;
+  background: var(--up-soft);
+  border-left: 3px solid var(--up);
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+.panel {
+  margin-top: 14px;
+  padding: 16px;
+  border: 1px solid var(--line-strong);
+  background: rgba(244, 247, 251, 0.8);
+}
+
+.panel h2 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.field span {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.field em {
+  font-style: normal;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  line-height: 1.4;
+}
+
+.field input[type="range"] {
+  width: 100%;
+  accent-color: var(--stamp);
+}
+
+.toggle {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 10px;
+  align-items: start;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.toggle strong {
+  display: block;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.toggle input {
+  margin-top: 3px;
+  accent-color: var(--stamp);
+}
+
+.calcGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.calcGrid > div {
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid var(--line);
+}
+
+.calcGrid span {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-3);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.calcGrid strong {
+  font-family: var(--font-display);
+  font-size: 20px;
+  letter-spacing: -0.02em;
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+.note {
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-3);
+}
+
+.linkBtn {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  background: var(--ink);
+  color: var(--sheet);
+  font-weight: 700;
+  font-size: 15px;
+}

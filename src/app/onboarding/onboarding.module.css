@@ -1,0 +1,148 @@
+.wrap {
+  padding: 18px 18px 28px;
+}
+
+.sim {
+  display: inline-flex;
+  padding: 6px 10px;
+  border: 1px solid rgba(36, 87, 255, 0.28);
+  background: rgba(36, 87, 255, 0.08);
+  color: var(--cobalt);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.brand {
+  margin-top: 16px;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--stamp);
+}
+
+.title {
+  margin-top: 12px;
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.sub {
+  margin-top: 10px;
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--ink-2);
+  max-width: 34ch;
+}
+
+.progress {
+  margin-top: 18px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(16, 24, 32, 0.08);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--cobalt, #2457ff);
+  transition: width 0.25s ease;
+}
+
+.stepLabel {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.panel {
+  margin-top: 14px;
+  padding: 16px;
+  border: 1px solid var(--line-strong);
+  background: rgba(244, 247, 251, 0.85);
+  display: grid;
+  gap: 14px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.field span {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  background: #fff;
+  padding: 12px;
+  font-size: 15px;
+  outline: none;
+}
+
+.field input[type="range"] {
+  padding: 0;
+  accent-color: var(--stamp);
+}
+
+.choiceLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-3);
+}
+
+.choiceGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.choice {
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.choiceOn {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--sheet);
+}
+
+.actions {
+  margin-top: 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.primary,
+.secondary {
+  min-height: 52px;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.primary {
+  background: var(--ink);
+  color: var(--sheet);
+}
+
+.secondary {
+  border: 1.5px solid var(--ink);
+  background: transparent;
+}

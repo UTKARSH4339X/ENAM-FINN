@@ -1,0 +1,128 @@
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 12px 0;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink-2);
+  background: #fff;
+}
+
+.body {
+  padding: 8px 20px 28px;
+}
+
+.kicker {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.headline {
+  margin-top: 16px;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.lede {
+  margin-top: 10px;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.panel {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(16, 24, 32, 0.05);
+}
+
+.panelHot {
+  background: linear-gradient(180deg, rgba(232, 50, 26, 0.06), #fff);
+}
+
+.panelTitle {
+  font-size: 17px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.personName {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.personRole {
+  margin-top: 2px;
+  color: var(--ink-3);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.table {
+  display: grid;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 0.7fr 0.8fr;
+  gap: 8px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  align-items: center;
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.label {
+  font-size: 13px;
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.value {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.delta {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sourceLink {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--cobalt);
+  text-decoration: none;
+}
+
+.actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.primary,
+.secondary {
+  width: 100%;
+  border-radius: 14px;
+}

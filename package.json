@@ -1,0 +1,27 @@
+{
+  "name": "finn",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "finn": "bash scripts/run-finn.sh",
+    "dev": "next dev -H 0.0.0.0 -p 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "api": "cd backend && env -u HTTP_PROXY -u HTTPS_PROXY -u http_proxy -u https_proxy -u ALL_PROXY -u all_proxy ../.venv/bin/uvicorn app.main:app --app-dir . --host 127.0.0.1 --port 8000 --reload --reload-dir .",
+    "api:install": ".venv/bin/pip install -r backend/requirements.txt",
+    "universe:nse": "python3 scripts/build_nse_universe.py --refresh"
+  },
+  "dependencies": {
+    "framer-motion": "^11.18.2",
+    "next": "^15.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "typescript": "^5.7.3"
+  }
+}

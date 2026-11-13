@@ -1,0 +1,94 @@
+.wrap {
+  padding: 16px 16px 28px;
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--stamp);
+}
+
+.title {
+  margin-top: 10px;
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.sub {
+  margin-top: 6px;
+  font-size: 15px;
+  color: var(--ink-2);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.health {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(16, 24, 32, 0.06);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.healthOk {
+  background: rgba(15, 122, 87, 0.12);
+  color: #0f7a57;
+}
+
+.healthBad {
+  background: rgba(192, 57, 43, 0.12);
+  color: #c0392b;
+}
+
+.steps {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(16, 24, 32, 0.05);
+}
+
+.num {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.card p {
+  margin: 4px 0 8px;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.link {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--cobalt);
+}

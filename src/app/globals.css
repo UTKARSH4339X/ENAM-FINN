@@ -1,0 +1,448 @@
+:root {
+  /* Daylight desk — cool paper, not cream, not dark terminal */
+  --paper: #d7e0ea;
+  --paper-2: #e8eef5;
+  --sheet: #f4f7fb;
+  --ink: #101820;
+  --ink-2: #3a4654;
+  --ink-3: #6b7888;
+  --ink-4: #97a3b2;
+  --line: rgba(16, 24, 32, 0.1);
+  --line-strong: rgba(16, 24, 32, 0.18);
+
+  /* One signature stamp color — not gold, not purple */
+  --stamp: #e8321a;
+  --stamp-soft: rgba(232, 50, 26, 0.1);
+  --cobalt: #2457ff;
+  --cobalt-soft: rgba(36, 87, 255, 0.1);
+
+  --up: #0f7a57;
+  --up-soft: rgba(15, 122, 87, 0.1);
+  --down: #c0392b;
+  --down-soft: rgba(192, 57, 43, 0.1);
+
+  --font-display: "Bricolage Grotesque", sans-serif;
+  --font-sans: "Source Sans 3", sans-serif;
+  --font-mono: "Source Sans 3", sans-serif;
+
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a,
+button,
+.tap {
+  transition: transform 160ms var(--ease), background 160ms var(--ease), opacity 160ms var(--ease);
+}
+
+a:active,
+button:active,
+.tap:active {
+  transform: scale(0.97);
+  opacity: 0.92;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 18px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.btn-primary {
+  background: var(--ink);
+  color: #fff;
+}
+
+.btn-soft {
+  background: #fff;
+  color: var(--ink);
+  border: 1.5px solid var(--line-strong);
+}
+
+.btn-accent {
+  background: var(--stamp);
+  color: #fff;
+}
+
+::selection {
+  background: rgba(36, 87, 255, 0.18);
+}
+
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+.app-shell {
+  min-height: 100dvh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: #0b0f14;
+}
+
+.desktop-hint {
+  display: none;
+}
+
+.device {
+  width: 100%;
+  height: 100dvh;
+  height: 100svh;
+  position: relative;
+}
+
+.device-bezel {
+  display: none;
+}
+
+.phone {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  container-type: inline-size;
+  container-name: phone;
+  background: #eef2f6;
+}
+
+.phone-scroll {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.mesh {
+  display: none;
+}
+
+.status-bar {
+  position: relative;
+  z-index: 30;
+  flex: 0 0 auto;
+  height: calc(48px + env(safe-area-inset-top, 0px));
+  padding: env(safe-area-inset-top, 0px) 22px 0;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  color: var(--ink);
+}
+
+.status-time {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.status-island {
+  width: 118px;
+  height: 34px;
+  border-radius: 20px;
+  background: #0b0f14;
+  justify-self: center;
+}
+
+.status-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.home-indicator {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  width: 128px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(16, 24, 32, 0.28);
+  z-index: 45;
+  pointer-events: none;
+}
+
+.screen {
+  position: relative;
+  z-index: 1;
+  min-height: 100%;
+  padding-bottom: calc(96px + var(--safe-bottom));
+}
+
+@media (min-width: 768px) {
+  .app-shell {
+    padding: 28px 16px 36px;
+    gap: 14px;
+    align-content: center;
+    background:
+      radial-gradient(900px 520px at 12% -8%, rgba(36, 87, 255, 0.16), transparent 55%),
+      radial-gradient(700px 420px at 100% 8%, rgba(232, 50, 26, 0.1), transparent 50%),
+      linear-gradient(165deg, #1a222d 0%, #0b0f14 55%, #121820 100%);
+  }
+
+  .desktop-hint {
+    display: block;
+    order: 2;
+    color: rgba(244, 247, 251, 0.55);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  .device {
+    order: 1;
+    width: 390px;
+    height: min(844px, calc(100dvh - 84px));
+    padding: 12px;
+    border-radius: 54px;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(160deg, #2a3038 0%, #0a0c10 45%, #171b22 100%);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+      0 40px 100px rgba(0, 0, 0, 0.55),
+      0 2px 0 rgba(255, 255, 255, 0.06) inset;
+  }
+
+  .device-bezel {
+    display: block;
+    position: absolute;
+    inset: 12px;
+    border-radius: 44px;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45);
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .phone {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    border-radius: 42px;
+    overflow: hidden;
+  }
+
+  .status-bar {
+    height: 54px;
+    padding-top: 10px;
+  }
+
+  .home-indicator {
+    bottom: 10px;
+  }
+}
+
+.screen-pad {
+  padding-inline: 18px;
+}
+
+.brand-mark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 0.88;
+}
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
+}
+
+.muted {
+  color: var(--ink-2);
+}
+
+.faint {
+  color: var(--ink-3);
+}
+
+.up {
+  color: var(--up);
+}
+
+.down {
+  color: var(--down);
+}
+
+.stamp {
+  color: var(--stamp);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 0;
+  background: #fff;
+  color: var(--ink-2);
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(16, 24, 32, 0.04);
+}
+
+.chip.on {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--sheet);
+}
+
+.chip.hot {
+  border-color: rgba(232, 50, 26, 0.35);
+  background: var(--stamp-soft);
+  color: var(--stamp);
+}
+
+.chip.cool {
+  border-color: rgba(36, 87, 255, 0.28);
+  background: var(--cobalt-soft);
+  color: var(--cobalt);
+}
+
+.bottom-nav {
+  position: sticky;
+  bottom: 0;
+  z-index: 40;
+  margin-top: -72px;
+  padding: 10px 14px calc(18px + var(--safe-bottom));
+  background: linear-gradient(180deg, transparent, rgba(228, 235, 243, 0.82) 22%, rgba(228, 235, 243, 0.98));
+}
+
+.nav-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 6px;
+  border: 0;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 28px rgba(16, 24, 32, 0.12);
+}
+
+.nav-item {
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  min-height: 56px;
+  border-radius: 14px;
+  color: var(--ink-3);
+}
+
+.nav-item span {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.nav-item.active {
+  background: #101820;
+  color: #fff;
+}
+
+.nav-item svg {
+  width: 17px;
+  height: 17px;
+}
+
+.sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  background: rgba(16, 24, 32, 0.38);
+  backdrop-filter: blur(4px);
+}
+
+.sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  width: 100%;
+  border-radius: 18px 18px 0 0;
+  border: 1px solid var(--line-strong);
+  border-bottom: 0;
+  background: var(--sheet);
+  box-shadow: 0 -20px 60px rgba(16, 24, 32, 0.2);
+  padding: 12px 18px calc(28px + var(--safe-bottom));
+  max-height: 86%;
+  overflow: auto;
+}
+
+.sheet-handle {
+  width: 36px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(16, 24, 32, 0.18);
+  margin: 2px auto 16px;
+}
+
+.sim-banner {
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid rgba(36, 87, 255, 0.25);
+  background: rgba(36, 87, 255, 0.08);
+  color: var(--cobalt);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+}
