@@ -171,7 +171,7 @@ export function searchStocks(
   listing?: "ipo" | "index",
   opts?: { exchange?: "NSE" | "BSE"; offset?: number },
 ) {
-  const qs = new URLSearchParams({ q, limit: String(limit) });
+  const qs = new URLSearchParams({ q, limit: String(Math.min(limit, 3000)) });
   if (listing) qs.set("listing", listing);
   if (opts?.exchange) qs.set("exchange", opts.exchange);
   if (opts?.offset) qs.set("offset", String(opts.offset));

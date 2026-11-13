@@ -4,7 +4,11 @@ node_modules
 out
 .DS_Store
 *.log
+.env
 .env*.local
 .artifacts
 backend/app/data/*.db
+backend/data/*.db
 backend/app/data/EQUITY_L.csv
+# Service worker is source-controlled under public/sw.js
+# Do not ignore public/

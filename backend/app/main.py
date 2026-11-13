@@ -132,7 +132,7 @@ def market_search(
     ex = exchange.strip().upper() or None
     if ex not in (None, "NSE", "BSE"):
         ex = None
-    capped = max(1, min(int(limit or 80), 500))
+    capped = max(1, min(int(limit or 80), 3000))
     off = max(0, int(offset or 0))
     results = search_universe(q, limit=capped, listing=filt, exchange=ex, offset=off)
     stats = universe_stats()

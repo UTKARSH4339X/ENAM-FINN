@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./search.module.css";
 import { fetchQuotes, searchStocks, type SearchHit, type UniverseStats } from "@/lib/api";
 
@@ -12,26 +12,32 @@ const QUICK = [
   { ticker: "RELIANCE", label: "Reliance" },
   { ticker: "TCS", label: "TCS" },
   { ticker: "HDFCBANK", label: "HDFC Bank" },
+  { ticker: "INFY", label: "Infosys" },
+  { ticker: "SBIN", label: "SBI" },
 ];
 
-const PAGE = 120;
+const CHUNK = 500;
+const PAINT = 180;
 
 export default function SearchPage() {
   const [q, setQ] = useState("");
-  const [ex, setEx] = useState<"ALL" | "NSE" | "BSE" | "IPO" | "INDEX">("ALL");
+  const [ex, setEx] = useState<"ALL" | "NSE" | "BSE" | "IPO" | "INDEX">("NSE");
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [universe, setUniverse] = useState<UniverseStats | null>(null);
-  const [hasMore, setHasMore] = useState(false);
   const [idxQuotes, setIdxQuotes] = useState<
     Record<string, { price: number; change_pct: number }>
   >({});
+  const [visibleCount, setVisibleCount] = useState(PAINT);
+  const [hasMoreApi, setHasMoreApi] = useState(false);
+  const sentinel = useRef<HTMLDivElement | null>(null);
+  const loadGen = useRef(0);
 
   const quoteTickers = useMemo(() => {
     const base = ["NIFTY", "SENSEX", "BANKNIFTY", "RELIANCE", "TCS", "HDFCBANK", "INFY", "SBIN", "ITC"];
-    const fromHits = hits.slice(0, 40).map((h) => h.ticker);
+    const fromHits = hits.slice(0, 24).map((h) => h.ticker);
     return Array.from(new Set([...base, ...fromHits]));
   }, [hits]);
 
@@ -49,11 +55,11 @@ export default function SearchPage() {
           return map;
         });
       } catch {
-        /* keep previous */
+        /* keep */
       }
     }
     void pull();
-    const id = window.setInterval(pull, 3000);
+    const id = window.setInterval(pull, 6000);
     return () => {
       cancelled = true;
       window.clearInterval(id);
@@ -62,74 +68,103 @@ export default function SearchPage() {
 
   useEffect(() => {
     let cancelled = false;
+    const gen = ++loadGen.current;
     const handle = window.setTimeout(() => {
       setLoading(true);
+      setVisibleCount(PAINT);
+      setHits([]);
       const listing = ex === "IPO" ? "ipo" : ex === "INDEX" ? "index" : undefined;
       const exchange = ex === "NSE" || ex === "BSE" ? ex : undefined;
-      searchStocks(q, PAGE, listing, { exchange, offset: 0 })
-        .then((res) => {
-          if (cancelled) return;
-          setHits(res.results);
-          setUniverse(res.universe ?? null);
-          setHasMore(res.results.length >= PAGE);
+
+      async function run() {
+        try {
+          // First chunk fast so the list appears immediately
+          const first = await searchStocks(q, CHUNK, listing, { exchange, offset: 0 });
+          if (cancelled || gen !== loadGen.current) return;
+          setHits(first.results);
+          setUniverse(first.universe ?? null);
           setErr(null);
-        })
-        .catch(() => {
-          if (cancelled) return;
-          setErr("Search offline — start API (npm run api)");
+          setLoading(false);
+          setHasMoreApi(first.results.length >= CHUNK && !q.trim());
+
+          // Pull remaining NSE pages in background (browse only)
+          if (!q.trim() && first.results.length >= CHUNK) {
+            setLoadingMore(true);
+            let offset = first.results.length;
+            let guard = 0;
+            let acc = first.results;
+            while (guard < 12) {
+              guard += 1;
+              const page = await searchStocks(q, CHUNK, listing, { exchange, offset });
+              if (cancelled || gen !== loadGen.current) return;
+              if (!page.results.length) break;
+              const seen = new Set(acc.map((h) => `${h.exchange}-${h.ticker}`));
+              const merged = [...acc];
+              for (const row of page.results) {
+                const key = `${row.exchange}-${row.ticker}`;
+                if (!seen.has(key)) {
+                  seen.add(key);
+                  merged.push(row);
+                }
+              }
+              acc = merged;
+              setHits(merged);
+              setUniverse(page.universe ?? null);
+              offset = merged.length;
+              if (page.results.length < CHUNK) break;
+            }
+            setHasMoreApi(false);
+            setLoadingMore(false);
+          }
+        } catch {
+          if (cancelled || gen !== loadGen.current) return;
+          setErr("Search offline — run: npm run finn");
           setHits([]);
-          setHasMore(false);
-        })
-        .finally(() => {
-          if (!cancelled) setLoading(false);
-        });
-    }, q ? 160 : 0);
+          setLoading(false);
+          setLoadingMore(false);
+          setHasMoreApi(false);
+        }
+      }
+
+      void run();
+    }, q ? 180 : 0);
+
     return () => {
       cancelled = true;
       window.clearTimeout(handle);
     };
   }, [q, ex]);
 
-  async function loadMore() {
-    if (loadingMore || !hasMore) return;
-    setLoadingMore(true);
-    try {
-      const listing = ex === "IPO" ? "ipo" : ex === "INDEX" ? "index" : undefined;
-      const exchange = ex === "NSE" || ex === "BSE" ? ex : undefined;
-      const res = await searchStocks(q, PAGE, listing, { exchange, offset: hits.length });
-      setHits((prev) => {
-        const seen = new Set(prev.map((h) => `${h.exchange}-${h.ticker}`));
-        const next = [...prev];
-        for (const row of res.results) {
-          const key = `${row.exchange}-${row.ticker}`;
-          if (!seen.has(key)) {
-            seen.add(key);
-            next.push(row);
-          }
-        }
-        return next;
-      });
-      setUniverse(res.universe ?? null);
-      setHasMore(res.results.length >= PAGE);
-    } catch {
-      setHasMore(false);
-    } finally {
-      setLoadingMore(false);
-    }
-  }
-
-  const shown = hits;
-  const indices = shown.filter((h) => h.kind === "index");
-  const equities = shown.filter((h) => h.kind !== "index");
+  const indices = hits.filter((h) => h.kind === "index");
+  const equities = hits.filter((h) => h.kind !== "index");
+  const equityList = q ? hits : equities;
+  const painted = equityList.slice(0, visibleCount);
+  const canRevealMore = painted.length < equityList.length;
   const nseTotal = universe?.nse_equities ?? null;
+
+  useEffect(() => {
+    if (!canRevealMore) return;
+    const node = sentinel.current;
+    if (!node) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setVisibleCount((n) => Math.min(n + PAINT, equityList.length));
+        }
+      },
+      { rootMargin: "500px" },
+    );
+    io.observe(node);
+    return () => io.disconnect();
+  }, [canRevealMore, equityList.length]);
 
   return (
     <main className={`screen ${styles.wrap}`}>
       <div className={styles.brand}>FINN</div>
       <h1 className={styles.title}>Markets</h1>
       <p className={styles.sub}>
-        Full NSE book
-        {nseTotal != null ? ` · ${nseTotal.toLocaleString("en-IN")} equities` : ""}
+        Full NSE equity list
+        {nseTotal != null ? ` · ${nseTotal.toLocaleString("en-IN")} stocks` : ""}
       </p>
 
       <div className={styles.searchBox}>
@@ -137,7 +172,7 @@ export default function SearchPage() {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search any NSE stock…"
+          placeholder="Search any NSE stock (RELIANCE, INFY…)"
           autoCapitalize="characters"
           autoCorrect="off"
         />
@@ -152,7 +187,7 @@ export default function SearchPage() {
       </div>
 
       <div className={styles.filters}>
-        {(["ALL", "INDEX", "NSE", "BSE", "IPO"] as const).map((k) => (
+        {(["NSE", "ALL", "INDEX", "BSE", "IPO"] as const).map((k) => (
           <button
             key={k}
             type="button"
@@ -166,15 +201,17 @@ export default function SearchPage() {
 
       <p className={styles.status}>
         {loading
-          ? "Loading…"
+          ? "Loading NSE stocks…"
           : err
             ? err
-            : `${shown.length.toLocaleString("en-IN")} shown${
-                nseTotal != null && !q ? ` · ${nseTotal.toLocaleString("en-IN")} NSE listed` : ""
-              }`}
+            : q
+              ? `${hits.length.toLocaleString("en-IN")} matches`
+              : `${equityList.length.toLocaleString("en-IN")} NSE stocks${
+                  loadingMore ? " · loading rest…" : nseTotal != null ? ` of ${nseTotal.toLocaleString("en-IN")}` : ""
+                }`}
       </p>
 
-      {!q && indices.length > 0 && (
+      {!q && indices.length > 0 && ex !== "NSE" && (
         <>
           <h2 className={styles.section}>Indices</h2>
           <div className={styles.list}>
@@ -201,10 +238,7 @@ export default function SearchPage() {
                         </span>
                       </>
                     ) : (
-                      <>
-                        <span className={styles.ex}>{h.exchange}</span>
-                        <span className={styles.sector}>Index</span>
-                      </>
+                      <span className={styles.ex}>{h.exchange}</span>
                     )}
                   </div>
                 </Link>
@@ -214,9 +248,9 @@ export default function SearchPage() {
         </>
       )}
 
-      <h2 className={styles.section}>{q ? "Results" : "NSE stocks"}</h2>
+      <h2 className={styles.section}>{q ? "Results" : "All NSE stocks (A–Z)"}</h2>
       <div className={styles.list}>
-        {(q ? shown : equities).map((h) => {
+        {painted.map((h) => {
           const live = idxQuotes[h.ticker];
           return (
             <Link
@@ -230,7 +264,6 @@ export default function SearchPage() {
               </div>
               <div className={styles.meta}>
                 {h.is_ipo ? <span className={styles.ipo}>NEW</span> : null}
-                {h.kind === "index" ? <span className={styles.ipo}>INDEX</span> : null}
                 {live ? (
                   <>
                     <span className="num" style={{ fontWeight: 800, fontSize: 14 }}>
@@ -254,15 +287,28 @@ export default function SearchPage() {
         })}
       </div>
 
-      {hasMore && !loading && !err && (
-        <div style={{ padding: "8px 0 20px" }}>
-          <button type="button" className="btn btn-soft" disabled={loadingMore} onClick={() => void loadMore()}>
-            {loadingMore ? "Loading…" : "Load more NSE stocks"}
+      {(canRevealMore || hasMoreApi) && (
+        <div ref={sentinel} style={{ padding: "12px 0 24px", textAlign: "center" }}>
+          <button
+            type="button"
+            className="btn btn-soft"
+            disabled={loadingMore && !canRevealMore}
+            onClick={() => setVisibleCount((n) => Math.min(n + PAINT, equityList.length))}
+          >
+            {loadingMore && !canRevealMore
+              ? "Loading remaining NSE stocks…"
+              : `Show more (${painted.length.toLocaleString("en-IN")} / ${equityList.length.toLocaleString("en-IN")})`}
           </button>
         </div>
       )}
 
-      {!loading && !err && shown.length === 0 && q.trim() && (
+      {!loading && !err && !canRevealMore && !loadingMore && equityList.length > 0 && !q && (
+        <p className={styles.status} style={{ paddingBottom: 20 }}>
+          End of list · {equityList.length.toLocaleString("en-IN")} NSE names
+        </p>
+      )}
+
+      {!loading && !err && hits.length === 0 && q.trim() && (
         <div className={styles.empty}>
           <p>No list match.</p>
           <Link

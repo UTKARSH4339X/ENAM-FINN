@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import styles from "@/app/home.module.css";
 import { portfolioPulse, windows } from "@/data/portfolio";
 import { Sparkline } from "@/components/Sparkline";
@@ -22,6 +22,7 @@ function shortWhy(text: string) {
 
 export default function AppHomePage() {
   const book = useBook();
+  const bookKey = useMemo(() => book.tickers.join(","), [book.tickers]);
   const [windowKey, setWindowKey] = useState<(typeof windows)[number]>("24h");
   const [showMore, setShowMore] = useState(false);
   const pulse = useMemo(() => portfolioPulse(), []);
@@ -34,19 +35,23 @@ export default function AppHomePage() {
   const [items, setItems] = useState<DigestItem[]>([]);
   const [digestSrc, setDigestSrc] = useState<string>("…");
   const [digestErr, setDigestErr] = useState<string | null>(null);
+  const [digestLoading, setDigestLoading] = useState(true);
+  const digestReq = useRef(0);
 
   useEffect(() => {
     if (!book.ready || !book.tickers.length) return;
     let cancelled = false;
+    const tickers = book.tickers;
+    const holdings = book.holdings;
 
     async function pull() {
       try {
-        const q = await fetchQuotes(book.tickers);
+        const q = await fetchQuotes(tickers);
         if (cancelled) return;
         const next: Record<string, { price: number; change_pct: number; spark?: number[] }> = {};
         let weighted = 0;
         let wsum = 0;
-        for (const h of book.holdings) {
+        for (const h of holdings) {
           const row = q.quotes[h.ticker];
           if (!row) continue;
           next[h.ticker] = {
@@ -67,41 +72,53 @@ export default function AppHomePage() {
     }
 
     void pull();
-    const id = window.setInterval(pull, 3000);
+    const id = window.setInterval(pull, 5000);
     return () => {
       cancelled = true;
       window.clearInterval(id);
     };
-  }, [book.ready, book.tickers, book.holdings]);
+    // bookKey is the stable dependency for ticker identity
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [book.ready, bookKey]);
 
   useEffect(() => {
     if (!book.ready) return;
     let cancelled = false;
+    const req = ++digestReq.current;
     setShowMore(false);
-    setDigestSrc("loading NSE filings…");
+    // Only show the loading line when we have nothing to display yet
+    setDigestLoading((prev) => prev || items.length === 0);
+    if (items.length === 0) setDigestSrc("loading NSE filings…");
+
     fetchDigest(windowKey, book.tickers)
       .then((d) => {
-        if (cancelled) return;
+        if (cancelled || req !== digestReq.current) return;
         setItems(d.items || []);
         setDigestSrc(`${d.source} · ${d.count} items`);
         setDigestErr(null);
+        setDigestLoading(false);
       })
       .catch(() => {
-        if (cancelled) return;
+        if (cancelled || req !== digestReq.current) return;
         setDigestErr("Could not load NSE filings. Run npm run finn if the API is down.");
-        setItems([]);
-        setDigestSrc("offline");
+        // Keep prior items if we had them — don't flash empty
+        setDigestSrc((s) => (s.startsWith("loading") ? "offline" : s));
+        setDigestLoading(false);
       });
+
     return () => {
       cancelled = true;
     };
-  }, [windowKey, book.ready, book.tickers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [windowKey, book.ready, bookKey]);
 
   const important = items.filter((i) => i.priority === "critical" || i.priority === "high");
   const extra = items.filter((i) => i.priority === "watch" || i.priority === "routine");
   const visible = showMore ? [...important, ...extra] : important.length ? important : items.slice(0, 8);
   const avg = liveAvg ?? pulse.avg;
   const topCharts = book.holdings.slice(0, 4);
+  const showLoadingLine = digestLoading && visible.length === 0 && !digestErr;
+  const showQuietLine = !digestLoading && visible.length === 0 && !digestErr;
 
   return (
     <main className="screen">
@@ -123,8 +140,12 @@ export default function AppHomePage() {
             <span className="stamp">{important.length} important</span>
             <span className="faint"> · </span>
             <span className="faint">{extra.length} routine buried</span>
-            <span className="faint"> · </span>
-            <span className="faint">{digestSrc}</span>
+            {!digestLoading && (
+              <>
+                <span className="faint"> · </span>
+                <span className="faint">{digestSrc}</span>
+              </>
+            )}
           </div>
           <div className={styles.moneySub} style={{ marginTop: 6 }}>
             <span className="faint">
@@ -252,15 +273,15 @@ export default function AppHomePage() {
         ))}
       </section>
 
-      {!visible.length && !digestErr && digestSrc.startsWith("loading") && (
+      {showLoadingLine && (
         <p style={{ padding: "12px 16px", color: "var(--ink-3)", fontWeight: 600 }}>
           Loading filings from NSE…
         </p>
       )}
-      {!visible.length && !digestErr && !digestSrc.startsWith("loading") && (
+      {showQuietLine && (
         <p style={{ padding: "12px 16px", color: "var(--ink-3)", fontWeight: 600 }}>
-          Quiet tape for this window — no Important NSE filings. That is a real empty state, not a
-          crash. Live prices above still update when the feed is up.
+          Quiet tape for this window — no NSE filings to show. Live prices above still update when
+          the feed is up.
         </p>
       )}
 

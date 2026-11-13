@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { portfolio as seedPortfolio, type Holding } from "@/data/portfolio";
 import { fetchUploadedPortfolio } from "@/lib/api";
 
@@ -15,9 +15,7 @@ export type BookState = {
   refresh: () => Promise<void>;
 };
 
-function seedHoldings(): Holding[] {
-  return seedPortfolio.map((h) => ({ ...h }));
-}
+const SEED = seedPortfolio.map((h) => ({ ...h }));
 
 function readCachedTickers(): string[] | null {
   if (typeof window === "undefined") return null;
@@ -36,9 +34,17 @@ function writeCachedTickers(tickers: string[]) {
   localStorage.setItem(BOOK_KEY, JSON.stringify(tickers));
 }
 
+function sameTickers(a: Holding[], b: Holding[]) {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].ticker !== b[i].ticker) return false;
+  }
+  return true;
+}
+
 /** Active investment book: CSV upload wins, else seed NSE book. */
 export function useBook(): BookState {
-  const [holdings, setHoldings] = useState<Holding[]>(seedHoldings);
+  const [holdings, setHoldings] = useState<Holding[]>(SEED);
   const [source, setSource] = useState<"seed" | "csv">("seed");
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,28 +64,21 @@ export function useBook(): BookState {
           changePct: 0,
           volumeRatio: 1,
         }));
-        const tickers = next.map((h) => h.ticker);
-        writeCachedTickers(tickers);
-        setHoldings(next);
+        writeCachedTickers(next.map((h) => h.ticker));
+        setHoldings((prev) => (sameTickers(prev, next) ? prev : next));
         setSource("csv");
         setError(null);
       } else {
-        const cached = readCachedTickers();
-        if (cached?.length) {
-          // CSV cleared but cache exists — fall back to seed names still in universe
-          setHoldings(seedHoldings());
-          setSource("seed");
-        } else {
-          setHoldings(seedHoldings());
-          setSource("seed");
-        }
+        setHoldings((prev) => (sameTickers(prev, SEED) ? prev : SEED));
+        setSource("seed");
         setError(null);
       }
     } catch {
       const cached = readCachedTickers();
       if (cached?.length) {
-        const fromSeed = seedHoldings().filter((h) => cached.includes(h.ticker));
-        setHoldings(fromSeed.length ? fromSeed : seedHoldings());
+        const fromSeed = SEED.filter((h) => cached.includes(h.ticker));
+        const next = fromSeed.length ? fromSeed : SEED;
+        setHoldings((prev) => (sameTickers(prev, next) ? prev : next));
       }
       setError("Could not refresh uploaded book — using local book.");
     } finally {
@@ -96,8 +95,10 @@ export function useBook(): BookState {
     return () => window.removeEventListener("finn-book-changed", onBookChanged);
   }, [refresh]);
 
+  const tickers = useMemo(() => holdings.map((h) => h.ticker), [holdings]);
+
   return {
-    tickers: holdings.map((h) => h.ticker),
+    tickers,
     holdings,
     source,
     ready,
@@ -107,5 +108,5 @@ export function useBook(): BookState {
 }
 
 export function defaultBookTickers() {
-  return seedPortfolio.map((h) => h.ticker);
+  return SEED.map((h) => h.ticker);
 }

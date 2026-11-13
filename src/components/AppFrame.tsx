@@ -32,11 +32,12 @@ function isAppOpen(pathname: string) {
     pathname.startsWith("/performance") ||
     pathname.startsWith("/risk") ||
     pathname.startsWith("/guardian") ||
-    pathname.startsWith("/demo")
+    pathname.startsWith("/demo") ||
+    pathname.startsWith("/offline")
   );
 }
 
-const PUBLIC = new Set(["/", "/signup"]);
+const PUBLIC = new Set(["/", "/signup", "/offline"]);
 
 export function AppFrame({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -50,7 +51,8 @@ export function AppFrame({ children }: { children: React.ReactNode }) {
     pathname === "/" ||
     pathname.startsWith("/signup") ||
     pathname.startsWith("/onboarding") ||
-    pathname.startsWith("/filing/");
+    pathname.startsWith("/filing/") ||
+    pathname.startsWith("/offline");
 
   useEffect(() => {
     if (!authReady || !profileReady) return;

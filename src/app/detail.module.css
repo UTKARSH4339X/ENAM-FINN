@@ -76,15 +76,19 @@
 
 .table {
   display: grid;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .row {
   display: grid;
-  grid-template-columns: 1.2fr 1fr 0.7fr 0.8fr;
+  grid-template-columns: minmax(72px, 1.2fr) minmax(64px, 1fr) minmax(48px, 0.7fr) minmax(52px, 0.8fr);
   gap: 8px;
   padding: 12px 0;
   border-bottom: 1px solid var(--line);
   align-items: center;
+  min-width: 300px;
 }
 
 .row:last-child {

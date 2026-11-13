@@ -28,9 +28,13 @@ const DEFAULT_BOOK = [
 
 function apiBases(): string[] {
   const out: string[] = [];
-  if (process.env.FINN_API_ORIGIN) out.push(process.env.FINN_API_ORIGIN.replace(/\/$/, ""));
-  // Local FastAPI during development
-  out.push("http://127.0.0.1:8000");
+  if (process.env.FINN_API_ORIGIN) {
+    out.push(process.env.FINN_API_ORIGIN.replace(/\/$/, ""));
+  }
+  // Local FastAPI only in development — never call localhost from Vercel.
+  if (process.env.NODE_ENV !== "production") {
+    out.push("http://127.0.0.1:8000");
+  }
   return out;
 }
 

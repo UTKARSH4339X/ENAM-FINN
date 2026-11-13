@@ -38,6 +38,8 @@
 html,
 body {
   min-height: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -46,6 +48,9 @@ body {
   background: var(--paper);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  touch-action: manipulation;
 }
 
 button,
@@ -224,6 +229,46 @@ button:active,
   padding-bottom: calc(96px + var(--safe-bottom));
 }
 
+/* Installed PWA / standalone: drop decorative phone chrome */
+@media (display-mode: standalone) {
+  .app-shell {
+    background: #eef2f6;
+    padding: 0;
+  }
+
+  .desktop-hint,
+  .device-bezel,
+  .status-island,
+  .home-indicator {
+    display: none !important;
+  }
+
+  .device {
+    width: 100%;
+    height: 100dvh;
+    height: 100svh;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .phone {
+    border-radius: 0;
+    background: #eef2f6;
+  }
+
+  .status-bar {
+    height: calc(12px + env(safe-area-inset-top, 0px));
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .status-time,
+  .status-right {
+    display: none;
+  }
+}
+
 @media (min-width: 768px) {
   .app-shell {
     padding: 28px 16px 36px;
@@ -287,8 +332,45 @@ button:active,
   }
 }
 
+/* Standalone must win over desktop phone mockup */
+@media (display-mode: standalone) {
+  .app-shell {
+    padding: 0 !important;
+    background: #eef2f6 !important;
+  }
+
+  .desktop-hint {
+    display: none !important;
+  }
+
+  .device {
+    width: 100% !important;
+    height: 100dvh !important;
+    height: 100svh !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  .device-bezel {
+    display: none !important;
+  }
+
+  .phone {
+    border-radius: 0 !important;
+  }
+}
+
 .screen-pad {
   padding-inline: 18px;
+}
+
+/* Keep wide tables/charts inside the viewport */
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .brand-mark {
