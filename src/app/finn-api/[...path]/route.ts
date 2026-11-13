@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { analyzeTickerEmbedded, type ChartRange } from "@/server/analysis";
+import { fetchPrimaryResearchEmbedded } from "@/server/primaryResearch";
 import { fetchQuotesEmbedded } from "@/server/quotes";
 import { searchUniverseEmbedded } from "@/server/universeSearch";
 
@@ -131,13 +132,7 @@ async function fallback(req: NextRequest, parts: string[]): Promise<NextResponse
 
   if (path.startsWith("research/") && path.endsWith("/primary")) {
     const ticker = parts[1]?.toUpperCase() || "INFY";
-    return NextResponse.json({
-      ok: false,
-      ticker,
-      name: ticker,
-      error:
-        "Primary research needs the FINN API (FINN_API_ORIGIN) or local `npm run api`. Quotes and search still work live.",
-    });
+    return NextResponse.json(await fetchPrimaryResearchEmbedded(ticker));
   }
 
   if (path === "push/digest") {

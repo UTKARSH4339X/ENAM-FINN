@@ -514,6 +514,40 @@ export async function analyzeTickerEmbedded(ticker: string, range: ChartRange = 
 
   const strength = Math.min(100, Math.round((Math.abs(score) / 14) * 100));
 
+  // Explicit bull / bear case lines from indicator evidence
+  const bull_case: string[] = [];
+  const bear_case: string[] = [];
+  for (const ind of indicators) {
+    const line = `${ind.name}: ${ind.note}${
+      typeof ind.value === "number" ? ` (${ind.value})` : ind.value ? ` (${ind.value})` : ""
+    }`;
+    if (ind.signal === "buy") bull_case.push(line);
+    else if (ind.signal === "sell") bear_case.push(line);
+  }
+  if (!bull_case.length) {
+    bull_case.push(
+      trend === "BULLISH"
+        ? "Tape leans constructive but individual buy triggers are mixed — wait for confirmation."
+        : "No strong bullish indicator cluster on this window.",
+    );
+  }
+  if (!bear_case.length) {
+    bear_case.push(
+      trend === "BEARISH"
+        ? "Tape leans weak but individual sell triggers are mixed — manage size carefully."
+        : "No strong bearish indicator cluster on this window.",
+    );
+  }
+
+  const take_profit = target;
+  const stop_loss = stop;
+  const invalidates_tech =
+    stance === "Long"
+      ? `Technical long weakens if price closes below stop ₹${stop_loss.toLocaleString("en-IN")} or RSI/MACD turn firmly down.`
+      : stance === "Sell"
+        ? `Technical short/reduce weakens if price closes above stop ₹${stop_loss.toLocaleString("en-IN")} or momentum flips up.`
+        : `Stay flat/keep sizing tight until RSI, MACD, and MAs agree more clearly.`;
+
   // Cap chart length for UI (keep last window)
   const maxBars = range === "1D" ? 120 : range === "1W" ? 200 : range === "ALL" ? 400 : 180;
   const trim = Math.min(candles.length, maxBars);
@@ -537,15 +571,20 @@ export async function analyzeTickerEmbedded(ticker: string, range: ChartRange = 
     trend,
     trend_strength: strength,
     trend_reason: reasons.slice(0, 3).join(" · ") || "Insufficient indicator agreement",
+    bull_case: bull_case.slice(0, 5),
+    bear_case: bear_case.slice(0, 5),
+    take_profit,
+    stop_loss,
+    invalidates_tech,
     trade: {
       stance,
       entry: price,
-      target,
-      stop,
+      target: take_profit,
+      stop: stop_loss,
       profit_pct,
       loss_pct,
-      reward_rupees: Math.round(Math.abs(target - price) * 100) / 100,
-      risk_rupees: Math.round(Math.abs(price - stop) * 100) / 100,
+      reward_rupees: Math.round(Math.abs(take_profit - price) * 100) / 100,
+      risk_rupees: Math.round(Math.abs(price - stop_loss) * 100) / 100,
     },
     score,
     score_max: 14,
@@ -567,6 +606,6 @@ export async function analyzeTickerEmbedded(ticker: string, range: ChartRange = 
     range,
     as_of: new Date().toISOString(),
     disclaimer:
-      "Technical trend from live Moneycontrol OHLC (RSI, MACD, MAs, momentum, volume). Not a guaranteed prediction or trade advice. Paper trading only unless a verified broker is connected.",
+      "Bull/bear lines combine live Moneycontrol OHLC indicators (RSI, MACD, MAs, momentum, volume). Not a guaranteed prediction. Filing bull/bear come from company tables when available.",
   };
 }

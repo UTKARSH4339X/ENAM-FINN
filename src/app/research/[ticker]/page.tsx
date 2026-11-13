@@ -30,6 +30,33 @@ function Delta({ value }: { value: number | null | undefined }) {
   );
 }
 
+function CaseList({
+  title,
+  items,
+  empty,
+  tone,
+}: {
+  title: string;
+  items: string[];
+  empty: string;
+  tone: "bull" | "bear";
+}) {
+  return (
+    <section className={`${styles.block} ${tone === "bull" ? styles.bullBox : styles.bearBox}`}>
+      <h2>{title}</h2>
+      {items.length ? (
+        <ul>
+          {items.map((b) => (
+            <li key={b}>{b}</li>
+          ))}
+        </ul>
+      ) : (
+        <p className="faint">{empty}</p>
+      )}
+    </section>
+  );
+}
+
 export default function ResearchPage() {
   const params = useParams<{ ticker: string }>();
   const ticker = (params.ticker || "INFY").toUpperCase();
@@ -40,6 +67,7 @@ export default function ResearchPage() {
   const [live, setLive] = useState<{ price: number; change_pct: number; source?: string } | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [loadingChart, setLoadingChart] = useState(true);
+  const [loadingPrimary, setLoadingPrimary] = useState(true);
   const [retryKey, setRetryKey] = useState(0);
   const [logging, setLogging] = useState(false);
   const [logMsg, setLogMsg] = useState<string | null>(null);
@@ -53,12 +81,16 @@ export default function ResearchPage() {
   useEffect(() => {
     let cancelled = false;
     setPrimary(null);
+    setLoadingPrimary(true);
     fetchPrimaryResearch(ticker)
       .then((p) => {
         if (!cancelled) setPrimary(p);
       })
       .catch(() => {
         if (!cancelled) setPrimary({ ok: false, ticker, name: ticker, error: "Primary research offline" });
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingPrimary(false);
       });
     return () => {
       cancelled = true;
@@ -123,23 +155,48 @@ export default function ResearchPage() {
 
   const trend = data?.trend || (data?.tone === "buy" ? "BULLISH" : data?.tone === "sell" ? "BEARISH" : "NEUTRAL");
   const trendClass =
-    trend === "BULLISH"
-      ? styles.trendBull
-      : trend === "BEARISH"
-        ? styles.trendBear
-        : styles.trendNeutral;
+    trend === "BULLISH" ? styles.trendBull : trend === "BEARISH" ? styles.trendBear : styles.trendNeutral;
+
+  // Merge filing bull/bear with indicator bull/bear — always show something useful
+  const bullItems = useMemo(() => {
+    const filing = primary?.bull || [];
+    const tech = data?.bull_case || [];
+    const out: string[] = [];
+    for (const x of filing) if (x && !out.includes(x)) out.push(x);
+    for (const x of tech) {
+      const tagged = x.startsWith("Tape:") || x.includes("SMA") || x.includes("RSI") || x.includes("MACD") || x.includes("Volume") || x.includes("momentum")
+        ? `Tape · ${x}`
+        : `Tape · ${x}`;
+      if (!out.includes(tagged) && !out.includes(x)) out.push(tagged);
+    }
+    if (!out.length && loadingPrimary && loadingChart) return ["Loading bull case…"];
+    if (!out.length) return ["No clear bull case yet — wait for next filing print or a stronger tape cluster."];
+    return out.slice(0, 6);
+  }, [primary, data, loadingPrimary, loadingChart]);
+
+  const bearItems = useMemo(() => {
+    const filing = primary?.bear || [];
+    const tech = data?.bear_case || [];
+    const out: string[] = [];
+    for (const x of filing) if (x && !out.includes(x)) out.push(x);
+    for (const x of tech) {
+      const tagged = `Tape · ${x}`;
+      if (!out.includes(tagged) && !out.includes(x)) out.push(tagged);
+    }
+    if (!out.length && loadingPrimary && loadingChart) return ["Loading bear case…"];
+    if (!out.length) return ["No clear bear case yet — watch guidance and stop levels."];
+    return out.slice(0, 6);
+  }, [primary, data, loadingPrimary, loadingChart]);
+
+  const takeProfit = data?.take_profit ?? data?.trade?.target ?? null;
+  const stopLoss = data?.stop_loss ?? data?.trade?.stop ?? null;
 
   async function logDecision() {
     if (!data) return;
     setLogging(true);
     setLogMsg(null);
     try {
-      const thesis =
-        primary?.bull?.[0] ||
-        data.indicators
-          .slice(0, 3)
-          .map((i) => `${i.name}: ${i.note}`)
-          .join(" · ");
+      const thesis = bullItems[0] || data.trend_reason || "";
       await createRecommendation({
         ticker: data.ticker,
         action: data.action,
@@ -197,12 +254,12 @@ export default function ResearchPage() {
       <header className={styles.hero}>
         <div className={styles.top}>
           <div className={styles.brandTiny}>FINN</div>
-          <span className="eyebrow">Pull · live tape + filings</span>
+          <span className="eyebrow">Pull · filings + live tape</span>
         </div>
         <h1 className={styles.ticker}>{primary?.name ?? data?.name ?? ticker}</h1>
         <p className={styles.sub}>
           {ticker}
-          {primary?.sector ? ` · ${primary.sector}` : ""}
+          {primary?.sector ? ` · ${primary.sector}` : data?.sector && data.sector !== "—" ? ` · ${data.sector}` : ""}
         </p>
 
         <div className={styles.priceRow}>
@@ -228,7 +285,6 @@ export default function ResearchPage() {
       </header>
 
       <div className={styles.body}>
-        {/* Technical trend */}
         <section className={`${styles.trendBanner} ${trendClass}`}>
           <div className={styles.trendLabel}>{trend}</div>
           <div className={styles.trendMeta}>
@@ -246,9 +302,78 @@ export default function ResearchPage() {
           </p>
         </section>
 
+        {/* Main bull / bear — filings + indicator why */}
+        <div className={styles.splitCases}>
+          <CaseList title="Bull case" items={bullItems} empty="No bull points yet." tone="bull" />
+          <CaseList title="Bear case" items={bearItems} empty="No bear points yet." tone="bear" />
+        </div>
+
+        {/* Where to take profit / where to cut loss */}
+        {!isIndex && (takeProfit != null || stopLoss != null) && (
+          <section className={`${styles.block} ${styles.decision}`}>
+            <div className={styles.decisionHead}>
+              <h2>Where to take / where to lose</h2>
+              <span className={styles.action}>{data?.stance ?? "Keep"}</span>
+            </div>
+            <p className="faint" style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>
+              Levels from live ATR-style tape (entry = last price). Paper guidance only.
+            </p>
+            <div className={styles.planGrid}>
+              <div>
+                <span>Entry</span>
+                <strong className="num">
+                  ₹{(data?.trade?.entry ?? price ?? 0).toLocaleString("en-IN", { maximumFractionDigits: 2 })}
+                </strong>
+              </div>
+              <div>
+                <span>Take profit</span>
+                <strong className="num up">
+                  {takeProfit != null
+                    ? `₹${takeProfit.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`
+                    : "—"}
+                </strong>
+              </div>
+              <div>
+                <span>Stop loss</span>
+                <strong className="num down">
+                  {stopLoss != null
+                    ? `₹${stopLoss.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`
+                    : "—"}
+                </strong>
+              </div>
+            </div>
+            <div className={styles.planBars}>
+              {data?.trade && (
+                <>
+                  <div className={styles.planProfit}>
+                    <span>Upside if target hits</span>
+                    <strong>
+                      +{data.trade.profit_pct}% · ₹{data.trade.reward_rupees.toLocaleString("en-IN")}
+                    </strong>
+                  </div>
+                  <div className={styles.planLoss}>
+                    <span>Downside if stop hits</span>
+                    <strong>
+                      −{data.trade.loss_pct}% · ₹{data.trade.risk_rupees.toLocaleString("en-IN")}
+                    </strong>
+                  </div>
+                </>
+              )}
+            </div>
+            {(data?.invalidates_tech || primary?.invalidates) && (
+              <p style={{ marginTop: 12, fontSize: 13, fontWeight: 700, color: "var(--ink-2)" }}>
+                Invalidates: {data?.invalidates_tech || primary?.invalidates}
+              </p>
+            )}
+          </section>
+        )}
+
         {data?.indicators && data.indicators.length > 0 && (
           <section className={styles.block}>
-            <h2>Indicators</h2>
+            <h2>Why (indicators)</h2>
+            <p className="faint" style={{ fontSize: 12, fontWeight: 700, marginBottom: 4 }}>
+              Each row feeds the bull/bear case above.
+            </p>
             <div className={styles.indTable}>
               {data.indicators.slice(0, 8).map((row) => (
                 <div key={row.id} className={styles.indRow}>
@@ -260,7 +385,7 @@ export default function ResearchPage() {
                     className={row.signal === "buy" ? "up" : row.signal === "sell" ? "down" : "faint"}
                     style={{ fontWeight: 800, textAlign: "right" }}
                   >
-                    {row.note}
+                    {row.signal === "buy" ? "Bullish" : row.signal === "sell" ? "Bearish" : "Neutral"} · {row.note}
                   </span>
                 </div>
               ))}
@@ -275,7 +400,6 @@ export default function ResearchPage() {
               {loadingChart ? "Loading…" : data?.live && data.candles?.length ? "● LIVE" : "Offline"}
             </span>
           </div>
-
           <div className={styles.rangeRow} role="tablist" aria-label="Chart range">
             {RANGES.map((r) => (
               <button
@@ -288,7 +412,6 @@ export default function ResearchPage() {
               </button>
             ))}
           </div>
-
           {loadingChart && !data?.candles?.length ? (
             <p className={styles.loading}>Loading {range} chart…</p>
           ) : data?.candles?.length ? (
@@ -307,20 +430,14 @@ export default function ResearchPage() {
               </button>
             </div>
           )}
-          {data?.disclaimer && (
-            <p className="faint" style={{ marginTop: 8, fontSize: 11, fontWeight: 600 }}>
-              {data.disclaimer}
-            </p>
-          )}
         </section>
 
-        {/* Paper Buy / Sell */}
         {!isIndex && (
           <section className={`${styles.block} ${styles.paperBox}`}>
             <div className={styles.paperBadge}>PAPER TRADING</div>
             <h2>Buy / Sell</h2>
             <p className="faint" style={{ fontSize: 13, fontWeight: 600, marginTop: -4 }}>
-              Simulated orders only. No real broker is connected — nothing is executed in the market.
+              Simulated only. Use the take-profit / stop levels above as a checklist — no real order is sent.
             </p>
             <div className={styles.sideRow}>
               <button
@@ -354,6 +471,12 @@ export default function ResearchPage() {
               {estValue != null
                 ? ` · Est. value ₹${estValue.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`
                 : ""}
+              {takeProfit != null
+                ? ` · TP ₹${takeProfit.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`
+                : ""}
+              {stopLoss != null
+                ? ` · SL ₹${stopLoss.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`
+                : ""}
             </p>
             <button type="button" className="btn btn-primary" onClick={openConfirm} disabled={!price}>
               Review {side} order
@@ -383,8 +506,9 @@ export default function ResearchPage() {
                   Confirm paper {side} {qtyNum} {ticker}
                 </strong>
                 <p style={{ fontSize: 13, color: "var(--ink-2)", fontWeight: 600 }}>
-                  @ ₹{price?.toLocaleString("en-IN")} · est. ₹
-                  {estValue?.toLocaleString("en-IN")} — this will not send a real order.
+                  @ ₹{price?.toLocaleString("en-IN")} · est. ₹{estValue?.toLocaleString("en-IN")}
+                  {takeProfit != null ? ` · take profit ₹${takeProfit.toLocaleString("en-IN")}` : ""}
+                  {stopLoss != null ? ` · stop ₹${stopLoss.toLocaleString("en-IN")}` : ""} — not a real broker order.
                 </p>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                   <button type="button" className="btn btn-soft" onClick={() => setConfirmOpen(false)}>
@@ -404,7 +528,11 @@ export default function ResearchPage() {
             <h2>Business snapshot</h2>
             <span className="faint">company disclosure</span>
           </div>
-          <p>{primary?.snapshot || "Loading company profile from primary filings…"}</p>
+          <p>
+            {loadingPrimary
+              ? "Loading company profile from primary filings…"
+              : primary?.snapshot || primary?.error || "Company snapshot unavailable."}
+          </p>
         </section>
 
         {primary?.results && primary.results.length > 0 && (
@@ -432,29 +560,45 @@ export default function ResearchPage() {
           </section>
         )}
 
-        <div className={styles.splitCases}>
-          <section className={`${styles.block} ${styles.bullBox}`}>
-            <h2>Bull case</h2>
-            <ul>
-              {(primary?.bull || (primary ? [] : ["Loading…"])).map((b) => (
-                <li key={b}>{b}</li>
-              ))}
-            </ul>
+        {primary?.narrative_vs_numbers && primary.narrative_vs_numbers.length > 0 && (
+          <section className={styles.block}>
+            <h2>Numbers vs story</h2>
+            {primary.narrative_vs_numbers.map((line) => (
+              <p key={line}>{line}</p>
+            ))}
           </section>
-          <section className={`${styles.block} ${styles.bearBox}`}>
-            <h2>Bear case</h2>
-            <ul>
-              {(primary?.bear || (primary ? [] : ["Loading…"])).map((b) => (
-                <li key={b}>{b}</li>
-              ))}
-            </ul>
-          </section>
-        </div>
+        )}
 
-        {primary?.invalidates && (
+        {(primary?.invalidates || data?.invalidates_tech) && (
           <section className={`${styles.block} ${styles.invalidate}`}>
             <h2>What invalidates this</h2>
-            <p>{primary.invalidates}</p>
+            <p>{primary?.invalidates || data?.invalidates_tech}</p>
+            {primary?.action_hint && (
+              <p style={{ marginTop: 8, fontWeight: 800 }}>{primary.action_hint}</p>
+            )}
+          </section>
+        )}
+
+        {primary?.sources && (
+          <section className={styles.block}>
+            <h2>Proof · primary sources</h2>
+            <div className={styles.sourceLinks}>
+              {primary.sources.annual_report && (
+                <a href={primary.sources.annual_report.url} target="_blank" rel="noreferrer">
+                  Annual report →
+                </a>
+              )}
+              {primary.sources.transcript && (
+                <a href={primary.sources.transcript.url} target="_blank" rel="noreferrer">
+                  Concall transcript →
+                </a>
+              )}
+              {primary.page && (
+                <a href={primary.page} target="_blank" rel="noreferrer">
+                  Screener filings page →
+                </a>
+              )}
+            </div>
           </section>
         )}
 

@@ -143,6 +143,11 @@ export type AnalysisPayload = {
   trend?: "BULLISH" | "BEARISH" | "NEUTRAL" | "DATA UNAVAILABLE" | string;
   trend_strength?: number;
   trend_reason?: string;
+  bull_case?: string[];
+  bear_case?: string[];
+  take_profit?: number;
+  stop_loss?: number;
+  invalidates_tech?: string;
   trade?: TradePlan;
   score: number;
   score_max: number;
